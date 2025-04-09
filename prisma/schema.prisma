@@ -41,11 +41,11 @@ model Client {
 model Appointments {
   id       String   @id @default(uuid())
   date     DateTime
-  userId   String?
-  clientId String?
+  userId   String
+  clientId String
 
-  User   User?   @relation(fields: [userId], references: [id])
-  Client Client? @relation(fields: [clientId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  client Client @relation(fields: [clientId], references: [id])
 
   createdAt DateTime @default(now())
 

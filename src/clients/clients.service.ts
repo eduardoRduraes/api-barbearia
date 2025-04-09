@@ -32,10 +32,9 @@ export class ClientsService {
 
     async allClient(){
         const allClient = await this.prismaService.client.findMany();
-        let clients:Omit<Client, "password">[] | null= [];
-        allClient.map(c => {
+        let clients:Omit<Client, "password">[] = allClient.map(c => {
             const {password, ...safeClient} = c;
-            clients.push(safeClient);
+            return safeClient;
         });
         return clients;
     }
