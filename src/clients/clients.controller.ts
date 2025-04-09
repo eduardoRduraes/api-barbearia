@@ -10,8 +10,6 @@ export class ClientsController {
     @Post()
     async create(@Body() data: CreateClientDTO, @Res() res: Response){
         const client = await this.clientService.create(data);
-        // @ts-ignore
-        delete client.password;
         return res.status(201).json(client);
     }
     
@@ -20,4 +18,11 @@ export class ClientsController {
         const user = await this.clientService.findClientPhone(phone);
         return res.status(200).json(user);
     }
+
+    @Get("all")
+    async all(@Res() res: Response){
+        const allClients = await this.clientService.allClient();
+        return res.status(200).json(allClients);
+    }
+
 }

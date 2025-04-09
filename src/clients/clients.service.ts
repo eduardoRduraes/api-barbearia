@@ -1,6 +1,7 @@
 import {Injectable, NotFoundException} from '@nestjs/common';
-import {CreateClientDTO} from "./dtos/createClientDTO";
+import {CreateClientDTO, ResponseClient} from "./dtos/createClientDTO";
 import {PrismaService} from "../../prisma/prisma.service";
+import {Client} from "@prisma/client";
 
 @Injectable()
 export class ClientsService {
@@ -15,9 +16,9 @@ export class ClientsService {
 
         if(emailUserExists) throw new NotFoundException({message: "Jâ existe um cliente com esse E-mail!"});
 
-        const newUser = await this.prismaService.client.create({data: data});
+        const {password, ...safeClient} = await this.prismaService.client.create({data: data});
 
-        return newUser;
+        return safeClient;
     }
 
     async findClientPhone(phone:string){
@@ -25,12 +26,18 @@ export class ClientsService {
 
         if(!phoneUserExists) throw new NotFoundException({message:"Telefone não encontrado!"});
 
-        // @ts-ignore
-        delete phoneUserExists.password;
-
-        return phoneUserExists;
+        const {password, ...safeClient} = phoneUserExists;
+        return safeClient;
     }
 
-
+    async allClient(){
+        const allClient = await this.prismaService.client.findMany();
+        let clients:Omit<Client, "password">[] | null= [];
+        allClient.map(c => {
+            const {password, ...safeClient} = c;
+            clients.push(safeClient);
+        });
+        return clients;
+    }
 
 }

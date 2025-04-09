@@ -1,4 +1,5 @@
 import {IsEmail, IsNotEmpty, IsPhoneNumber, MaxLength, MinLength} from "class-validator";
+import {Client} from "@prisma/client";
 
 
 export class CreateClientDTO{
@@ -15,3 +16,5 @@ export class CreateClientDTO{
     @MaxLength(8)
     password: string;
 }
+
+export type ResponseClient = Omit<Client, "password">
