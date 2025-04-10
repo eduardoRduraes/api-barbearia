@@ -8,6 +8,6 @@ import {ClientsService} from "../clients/clients.service";
 @Module({
   providers: [AppointmentsService, PrismaService,UsersService,
     ClientsService],
-  controllers: [AppointmentsController]
+  controllers: [AppointmentsController],
 })
 export class AppointmentsModule {}

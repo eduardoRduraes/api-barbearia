@@ -7,7 +7,7 @@ import {Response} from "express";
 export class ClientsController {
     constructor(private readonly clientService: ClientsService) {}
 
-    @Post()
+    @Post("create")
     async create(@Body() data: CreateClientDTO, @Res() res: Response){
         const client = await this.clientService.create(data);
         return res.status(201).json(client);
