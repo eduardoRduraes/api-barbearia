@@ -9,5 +9,6 @@ import {ClientsService} from "../clients/clients.service";
   providers: [AppointmentsService, PrismaService,UsersService,
     ClientsService],
   controllers: [AppointmentsController],
+  exports:[AppointmentsService]
 })
 export class AppointmentsModule {}

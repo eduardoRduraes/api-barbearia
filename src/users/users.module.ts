@@ -6,6 +6,7 @@ import {AppointmentsService} from "../appointments/appointments.service";
 
 @Module({
   controllers: [UsersController],
-  providers: [UsersService, PrismaService, AppointmentsService]
+  providers: [UsersService, PrismaService, AppointmentsService],
+  exports:[UsersService]
 })
 export class UsersModule {}

@@ -1,4 +1,4 @@
-import {Injectable, NotFoundException} from '@nestjs/common';
+import {ConflictException, Injectable, NotFoundException} from '@nestjs/common';
 import {PrismaService} from "../../prisma/prisma.service";
 import {AppointmentsDTO} from "./dtos/appointmentsDTO";
 
@@ -8,16 +8,7 @@ export class AppointmentsService {
 
     async create(data:AppointmentsDTO){
 
-        const exists = await this.prismaService.appointments.findFirst(
-            {
-                    where: {
-                        date: data.date,
-                        state: true
-                    }
-            }
-        );
-
-        if(exists) throw new NotFoundException({message: "Já existe um agendamento para esse horário!"});
+        await this.checkDuplicateDate(data.date);
 
         return this.prismaService.appointments.create({
             data:{
@@ -27,7 +18,10 @@ export class AppointmentsService {
     }
 
     async find(appointmentsId: string){
-        return this.prismaService.appointments.findFirst({where: {id: appointmentsId}});
+        const appointment = await this.prismaService.appointments.findFirst({where: {id: appointmentsId, state: true}});
+        if(!appointment) throw new NotFoundException("Agendamento não encontrado!");
+
+        return appointment;
     }
 
     async all(){
@@ -39,7 +33,9 @@ export class AppointmentsService {
     }
 
     async remove(appointmentId: string){
-        this.prismaService.appointments.update({
+        const appointment = await this.find(appointmentId);
+
+        await this.prismaService.appointments.update({
             where:{
                 id: appointmentId,
             },
@@ -47,6 +43,19 @@ export class AppointmentsService {
                 state: false
             }
         });
+
+        return {message:"Agendamento alterado com sucesso!"};
+    }
+
+    private async checkDuplicateDate(date:Date){
+        const exists = await this.prismaService.appointments.findFirst({
+            where: {
+                date,
+                state: true
+            }
+        });
+
+        if(exists) throw new ConflictException("Existe agendamento marcado para este horário!");
     }
 
 }
