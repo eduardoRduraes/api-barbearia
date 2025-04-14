@@ -1,24 +1,57 @@
-import {ConflictException, Injectable, NotFoundException} from '@nestjs/common';
+import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../../prisma/prisma.service";
 import {CreateUserDTO} from "./dtos/createUserDTO";
-import {AppointmentsService} from "../appointments/appointments.service";
+
+import {Users} from "@prisma/client";
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly prismaService:PrismaService) {}
+    constructor(private readonly prismaService: PrismaService) {}
+    async create(data: CreateUserDTO){
+        await this.checkDuplicateFields(data);
+        const user = await this.prismaService.users.create({data});
+        return this.omitPassword(user);
+    }
 
-    async create(data:CreateUserDTO){
-        await this.checkEmailExists(data.email);
+    async findClientPhone(phone:string){
+        const phoneUserExists = await this.prismaService.users.findUnique({where:{phone, status: "USER"}});
 
-        const {password, ...safeClient} = await this.prismaService.user.create({data});
+        if(!phoneUserExists) throw new NotFoundException({message:"Número de cliente não encontrado!"});
 
+        const {password, ...safeClient} = phoneUserExists;
         return safeClient;
     }
 
-    private async checkEmailExists(email:string){
-        const userEmailExists = await this.prismaService.user.findUnique({where:{email}});
+    async allClient(){
+        const allClient = await this.prismaService.users.findMany();
+        return allClient.length > 0 ?
+            allClient.map(c => {
+                if(c.status == "USER") return this.omitPassword(c);
+            })
+            : [];
+    }
 
-        if(userEmailExists) throw new ConflictException("Já existe um usuário com esse E-mail!");
+    private async findId(id:string){
+       const admin = await this.prismaService.users.findUnique({where: {id}});
+       return admin;
+    }
+
+    private async checkDuplicateFields(data: CreateUserDTO){
+        const {phone, email} = data;
+
+        const [phoneUserExists,emailUserExists] = await Promise.all([
+            await this.prismaService.users.findUnique({where:{phone}}),
+            await this.prismaService.users.findUnique({where:{email}})
+        ]);
+
+        if(phoneUserExists) throw new ConflictException({message: "Já existe um cadastro com esse telefone!"});
+
+        if(emailUserExists) throw new ConflictException({message: "Já existe um cadastro com esse E-mail!"});
+    }
+
+    private omitPassword(client): Omit<Users, "password"> {
+        const {password, ...safeClient} = client;
+        return safeClient;
     }
 
 }

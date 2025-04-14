@@ -13,29 +13,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String         @id @default(uuid())
-  name         String
-  email        String         @unique
-  password     String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+enum USERSTATUS {
+  ADMIN
+  USER
+}
+
+model Users {
+  id        String     @id @default(uuid())
+  name      String
+  phone     String     @unique
+  email     String     @unique
+  password  String
+  status    USERSTATUS @default(USER)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
   appointments Appointments[]
 
   @@map("users")
-}
-
-model Client {
-  id           String         @id @default(uuid())
-  name         String
-  phone        String         @unique
-  email        String         @unique
-  password     String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  appointments Appointments[]
-
-  @@map("clients")
 }
 
 model Appointments {
@@ -45,8 +40,7 @@ model Appointments {
   clientId String
   state    Boolean  @default(false)
 
-  user   User   @relation(fields: [userId], references: [id])
-  client Client @relation(fields: [clientId], references: [id])
+  user Users @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
 
