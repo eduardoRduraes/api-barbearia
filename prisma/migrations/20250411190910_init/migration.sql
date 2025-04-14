@@ -27,8 +27,10 @@ CREATE TABLE "clients" (
 CREATE TABLE "appointments" (
     "id" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
-    "userId" TEXT,
-    "clientId" TEXT,
+    "hours" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "state" BOOLEAN NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "appointments_pkey" PRIMARY KEY ("id")
@@ -44,7 +46,7 @@ CREATE UNIQUE INDEX "clients_phone_key" ON "clients"("phone");
 CREATE UNIQUE INDEX "clients_email_key" ON "clients"("email");
 
 -- AddForeignKey
-ALTER TABLE "appointments" ADD CONSTRAINT "appointments_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "appointments" ADD CONSTRAINT "appointments_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "appointments" ADD CONSTRAINT "appointments_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "clients"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "appointments" ADD CONSTRAINT "appointments_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "clients"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

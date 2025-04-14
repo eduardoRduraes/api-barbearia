@@ -1,10 +1,11 @@
 import {Injectable, NotFoundException} from '@nestjs/common';
 import {PrismaService} from "../../prisma/prisma.service";
 import {CreateUserDTO} from "./dtos/createUserDTO";
+import {AppointmentsService} from "../appointments/appointments.service";
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly prismaService:PrismaService) {}
+    constructor(private readonly prismaService:PrismaService, private readonly appointment:AppointmentsService) {}
 
     async create(data:CreateUserDTO){
         const userEmailExists = await this.prismaService.user.findUnique({where:{email: data.email}});
@@ -15,4 +16,5 @@ export class UsersService {
 
         return safeClient;
     }
+
 }
