@@ -3,12 +3,17 @@ import {PrismaService} from "../../prisma/prisma.service";
 import {CreateUserDTO} from "./dtos/createUserDTO";
 
 import {Users} from "@prisma/client";
+import {BcryptHelper} from "../helper/bcrypt-helper";
 
 @Injectable()
 export class UsersService {
     constructor(private readonly prismaService: PrismaService) {}
     async create(data: CreateUserDTO){
         await this.checkDuplicateFields(data);
+        const hashPassword = await BcryptHelper.hashPassword(data.password);
+
+       data.password = hashPassword;
+
         const user = await this.prismaService.users.create({data});
         return this.omitPassword(user);
     }

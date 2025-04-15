@@ -1,10 +1,23 @@
 import {Body, Controller, Get, HttpException, HttpStatus, Post, Param} from '@nestjs/common';
 import {CreateUserDTO} from "./dtos/createUserDTO";
 import {UsersService} from "./users.service";
+import {LoginDTO} from "../auth/dtos/loginDTO";
+import {AuthService} from "../auth/auth.service";
 
 @Controller('users')
 export class UsersController {
-    constructor(private readonly userService: UsersService) {}
+    constructor(private readonly userService: UsersService, private readonly authService: AuthService) {}
+
+
+    @Post("login")
+    async login(@Body() data: LoginDTO){
+        try {
+            const token = await this.authService.login(data);
+            return {statusCode: HttpStatus.ACCEPTED, message:"Usuário autenticado!", data: token};
+        }catch (error){
+            throw new HttpException({statusCode: HttpStatus.BAD_REQUEST, message: error.message || "Error interno!"}, HttpStatus.BAD_REQUEST);
+        }
+    }
 
     @Post("create")
     async create(@Body() data:CreateUserDTO){
