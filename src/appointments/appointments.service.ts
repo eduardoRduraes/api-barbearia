@@ -1,4 +1,4 @@
-import {ConflictException, Injectable, NotFoundException} from '@nestjs/common';
+import {ConflictException, HttpException, HttpStatus, Injectable, NotFoundException} from '@nestjs/common';
 import {PrismaService} from "../../prisma/prisma.service";
 import {AppointmentsDTO} from "./dtos/appointmentsDTO";
 
@@ -34,6 +34,8 @@ export class AppointmentsService {
 
     async remove(appointmentId: string){
         const appointment = await this.find(appointmentId);
+
+        if(!appointment) throw new HttpException({statusCode:HttpStatus.NOT_FOUND, message:"Usuário não encontrado!"},HttpStatus.NOT_FOUND);
 
         await this.prismaService.appointments.update({
             where:{
