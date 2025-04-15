@@ -1,8 +1,11 @@
-import {Body, Controller, Get, HttpException, HttpStatus, Post, Param} from '@nestjs/common';
+import {Body, Controller, Get, HttpException, HttpStatus, Post, Param, UseGuards} from '@nestjs/common';
 import {CreateUserDTO} from "./dtos/createUserDTO";
 import {UsersService} from "./users.service";
 import {LoginDTO} from "../auth/dtos/loginDTO";
 import {AuthService} from "../auth/auth.service";
+import {JwtAuthGuard} from "../auth/jwt-auth.guard";
+import {RolesGuard} from "../auth/roles.guard";
+import {Roles} from "../auth/roles.decorator";
 
 @Controller('users')
 export class UsersController {
@@ -34,6 +37,8 @@ export class UsersController {
         }
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("ADMIN")
     @Get("all")
     async allUsers(){
         try {
@@ -46,6 +51,8 @@ export class UsersController {
         }
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("ADMIN")
     @Get("find/:phone")
     async findClientPhone(@Param("phone") phone:string){
         try {

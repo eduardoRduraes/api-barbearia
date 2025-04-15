@@ -10,9 +10,7 @@ export class UsersService {
     constructor(private readonly prismaService: PrismaService) {}
     async create(data: CreateUserDTO){
         await this.checkDuplicateFields(data);
-        const hashPassword = await BcryptHelper.hashPassword(data.password);
-
-       data.password = hashPassword;
+        data.password = await BcryptHelper.hashPassword(data.password);
 
         const user = await this.prismaService.users.create({data});
         return this.omitPassword(user);
@@ -29,16 +27,14 @@ export class UsersService {
 
     async allClient(){
         const allClient = await this.prismaService.users.findMany();
+
         return allClient.length > 0 ?
-            allClient.map(c => {
-                if(c.status == "USER") return this.omitPassword(c);
-            })
+            allClient.filter(c => c.status === "USER").map(c=> this.omitPassword(c))
             : [];
     }
 
     private async findId(id:string){
-       const admin = await this.prismaService.users.findUnique({where: {id}});
-       return admin;
+        return this.prismaService.users.findUnique({where: {id}});
     }
 
     private async checkDuplicateFields(data: CreateUserDTO){

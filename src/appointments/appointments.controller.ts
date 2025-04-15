@@ -1,12 +1,14 @@
-import {Body, Controller, Get, HttpException, HttpStatus, Param, Post, Put, Res} from '@nestjs/common';
+import {Body, Controller, Get, HttpException, HttpStatus, Param, Post, Put, UseGuards} from '@nestjs/common';
 import {AppointmentsService} from "./appointments.service";
 import {AppointmentsDTO} from "./dtos/appointmentsDTO";
-import {Response} from "express";
+import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 
 @Controller('appointments')
 export class AppointmentsController {
     constructor(private readonly appointmentService: AppointmentsService) {}
 
+
+    @UseGuards(JwtAuthGuard)
     @Post("create")
     async create(@Body() data: AppointmentsDTO){
         try {
@@ -20,13 +22,13 @@ export class AppointmentsController {
         }
     }
 
-
+    @UseGuards(JwtAuthGuard)
     @Get("all")
     async all(){
         const appointments = await this.appointmentService.all();
         return appointments.length > 0 ? {statusCode: HttpStatus.OK, message:"Agendamentos encontrados!", data: appointments} : {statusCode: HttpStatus.OK, message:"Não existe agendamentos salvos", data:appointments};
     }
-
+    @UseGuards(JwtAuthGuard)
     @Get("find/:id")
     async find(@Param("id") appoitmentId: string){
         try {
@@ -37,6 +39,7 @@ export class AppointmentsController {
         }
     }
 
+    @UseGuards(JwtAuthGuard)
     @Put("update/:id")
     async update(@Param("id") appointmentId: string){
         try {
